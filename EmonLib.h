@@ -63,6 +63,11 @@ class EnergyMonitor
       powerFactor,
       Vrms,
       Irms;
+	// Variables to keep track of ADC vals seen - to avoid saturating ADC
+	int IminADC,
+	  ImaxADC,
+	  VminADC,
+	  VmaxADC;
 
   private:
 

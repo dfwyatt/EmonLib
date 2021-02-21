@@ -181,10 +181,19 @@ double EnergyMonitor::calcIrms(unsigned int Number_of_Samples)
     int SupplyVoltage = readVcc();
   #endif
 
+  // Reset the min/max ADC variables
+  IminADC = ADC_COUNTS;
+  ImaxADC = 0;
+  VminADC = ADC_COUNTS;
+  VmaxADC = 0;
 
   for (unsigned int n = 0; n < Number_of_Samples; n++)
   {
     sampleI = analogRead(inPinI);
+	
+	// Update the track of min/max ADC
+	ImaxADC = (sampleI > ImaxADC) ? sampleI : ImaxADC;
+	IminADC = (sampleI < IminADC) ? sampleI : IminADC;
 
     // Digital low pass filter extracts the 2.5 V or 1.65 V dc offset,
     //  then subtract this - signal is now centered on 0 counts.
