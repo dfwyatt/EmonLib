@@ -55,6 +55,7 @@ class EnergyMonitor
     void calcVI(unsigned int crossings, unsigned int timeout);
     double calcIrms(unsigned int NUMBER_OF_SAMPLES);
     void serialprint();
+	void resetADCSatVars();
 
     long readVcc();
     //Useful value variables

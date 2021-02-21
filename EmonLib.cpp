@@ -74,6 +74,8 @@ void EnergyMonitor::calcVI(unsigned int crossings, unsigned int timeout)
   unsigned int crossCount = 0;                             //Used to measure number of times threshold is crossed.
   unsigned int numberOfSamples = 0;                        //This is now incremented
 
+  resetADCSatVars();
+
   //-------------------------------------------------------------------------------------------------------------------------
   // 1) Waits for the waveform to be close to 'zero' (mid-scale adc) part in sin curve.
   //-------------------------------------------------------------------------------------------------------------------------
@@ -101,6 +103,12 @@ void EnergyMonitor::calcVI(unsigned int crossings, unsigned int timeout)
     //-----------------------------------------------------------------------------
     sampleV = analogRead(inPinV);                 //Read in raw voltage signal
     sampleI = analogRead(inPinI);                 //Read in raw current signal
+	
+	// Update the track of min/max ADC values seen
+	ImaxADC = (sampleI > ImaxADC) ? sampleI : ImaxADC;
+	IminADC = (sampleI < IminADC) ? sampleI : IminADC;
+	VmaxADC = (sampleV > VmaxADC) ? sampleV : VmaxADC;
+	VminADC = (sampleV < VminADC) ? sampleV : VminADC;
 
     //-----------------------------------------------------------------------------
     // B) Apply digital low pass filters to extract the 2.5 V or 1.65 V dc offset,
@@ -181,17 +189,13 @@ double EnergyMonitor::calcIrms(unsigned int Number_of_Samples)
     int SupplyVoltage = readVcc();
   #endif
 
-  // Reset the min/max ADC variables
-  IminADC = ADC_COUNTS;
-  ImaxADC = 0;
-  VminADC = ADC_COUNTS;
-  VmaxADC = 0;
+  resetADCSatVars();
 
   for (unsigned int n = 0; n < Number_of_Samples; n++)
   {
     sampleI = analogRead(inPinI);
 	
-	// Update the track of min/max ADC
+	// Update the track of min/max ADC values seen
 	ImaxADC = (sampleI > ImaxADC) ? sampleI : ImaxADC;
 	IminADC = (sampleI < IminADC) ? sampleI : IminADC;
 
@@ -215,6 +219,15 @@ double EnergyMonitor::calcIrms(unsigned int Number_of_Samples)
   //--------------------------------------------------------------------------------------
 
   return Irms;
+}
+
+void EnergyMonitor::resetADCSatVars()
+{
+  // Reset the min/max ADC variables
+  IminADC = ADC_COUNTS;
+  ImaxADC = 0;
+  VminADC = ADC_COUNTS;
+  VmaxADC = 0;
 }
 
 void EnergyMonitor::serialprint()
